@@ -1,7 +1,7 @@
 package services
 
-import java.util.concurrent.Future
-
+import scala.concurrent.{Future, ExecutionContext}
+import play.api.libs.ws._
 class CompaniesHouseService(wsClient: WSClient)(implicit ec: ExecutionContext) {
 
   private def fetch(url: String): Future[String] = {
@@ -14,6 +14,6 @@ class CompaniesHouseService(wsClient: WSClient)(implicit ec: ExecutionContext) {
 
   def getOfficerAppointments(officerId: String): Future[String] = {
     val retStr = "officerId" + ":" + officerId
-    return Future.successful(retStr)
+    Future.successful(retStr)
   }
 }
