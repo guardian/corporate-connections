@@ -1,8 +1,6 @@
 package services
 
-import play.api.libs.ws.{WSAuthScheme, WSClient}
-
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.concurrent.Future
 
 class CompaniesHouseService(wsClient: WSClient)(implicit ec: ExecutionContext) {
 
@@ -12,5 +10,10 @@ class CompaniesHouseService(wsClient: WSClient)(implicit ec: ExecutionContext) {
       .withAuth("API KEY GOES HERE","", WSAuthScheme.BASIC)
       .get
       .map(response => response.body)
+  }
+
+  def getOfficerAppointments(officerId: String): Future[String] = {
+    val retStr = "officerId" + ":" + officerId
+    return Future.successful(retStr)
   }
 }
