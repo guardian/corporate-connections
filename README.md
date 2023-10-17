@@ -7,18 +7,33 @@ The task is to build an API to find all the co-officers of a given company offic
 This gives Scala learners an opportunity to build something with a real-world application in the investigative journalism space.
 
 
-#### Companies House API
-E.g. for officerId `aEdQfmEjiBuB7tLwOP_Wfg-JA-8`, this curl request returns their companies:
+## Companies House API
+### Getting an API key
+- Go to [https://developer.company-information.service.gov.uk/manage-applications] and create an account with your work email (if you don’t already have one)
+- Create an application (environment: Live, because the test environment does not have real data)
+- Create an API key in that application
+
+### API docs
+[Companies House Public Data API reference](https://developer-specs.company-information.service.gov.uk/companies-house-public-data-api/reference)
+
+### Auth
+[Docs here](https://developer-specs.company-information.service.gov.uk/guides/authorisation)
+
+We'll use HTTP Basic Auth, which for Companies House involves sending the API key as the username, and an empty password.
+
+### Looking up companies by officer
+e.g. for officerId `aEdQfmEjiBuB7tLwOP_Wfg-JA-8`, this curl request returns their companies:
 
 `curl -XGET -u <api-key>: https://api.company-information.service.gov.uk/officers/aEdQfmEjiBuB7tLwOP_Wfg-JA-8/appointments`
 
+### Looking up officers by company
 And for companyNumber `03114488`, this curl request returns its officers:
 
 `curl -XGET -u <api-key>: https://api.company-information.service.gov.uk/company/03114488/officers`
 
 For more details, see the [Companies House API Docs](https://developer-specs.company-information.service.gov.uk/companies-house-public-data-api/reference).
 
-#### Running the webserver
+## Running the webserver
 Use the API_KEY environment variable to set the Companies House api key:
 
 ```
@@ -35,6 +50,7 @@ webserver-project$ API_KEY=my-api-key sbt
 (Server started, use Enter to stop and go back to the console...)
 ```
 
+## Tasks
 ### Task 1: proxy appointments data for an officer
 Implement the `/officer/:id/appointmentsProxy` endpoint.
 
