@@ -6,6 +6,7 @@ case class OfficerAppointmentResponse(items: List[Appointment])
 
 object OfficerAppointmentResponse {
   // JSON decoding? See https://circe.github.io/circe/codecs/semiauto-derivation.html
+
 }
 
 
