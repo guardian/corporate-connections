@@ -1,6 +1,6 @@
 package services
 
-import models.{Appointment, OfficerAppointmentResponse}
+import models.{Appointment, CompanyOfficersResponse, Officer, OfficerAppointmentResponse}
 import models.OfficerAppointmentResponse._
 import play.api.libs.ws.{WSAuthScheme, WSClient}
 import io.circe.parser.decode
@@ -9,6 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait CompaniesHouseError
 case class FetchError(message: String) extends CompaniesHouseError
+case class ApiError(message: String) extends CompaniesHouseError
 case class JsonError(error: io.circe.Error) extends CompaniesHouseError
 
 class CompaniesHouseService(wsClient: WSClient, apiKey: String)(implicit ec: ExecutionContext) {
@@ -21,7 +22,7 @@ class CompaniesHouseService(wsClient: WSClient, apiKey: String)(implicit ec: Exe
       .map(response => {
         response.status match {
           case 200 => Right(response.body)
-          case _ => Left(FetchError(s"Error fetching $url: ${response.status} ${response.statusText}"))
+          case _ => Left(ApiError(s"Error fetching $url: ${response.status} ${response.statusText}"))
         }
       })
       .recover(error => Left(FetchError(s"Error fetching $url: ${error.getMessage}")))
@@ -40,4 +41,15 @@ class CompaniesHouseService(wsClient: WSClient, apiKey: String)(implicit ec: Exe
         }
       }
     }
+
+  def getOfficers(companyNumber: String): Future[Either[CompaniesHouseError, List[Officer]]] =
+    fetch(s"https://api.company-information.service.gov.uk/company/$companyNumber/officers")
+      .map { result =>
+        result.flatMap { json =>
+          decode[CompanyOfficersResponse](json) match {
+            case Right(response) => Right(response.items)
+            case Left(error) => Left(JsonError(error))
+          }
+        }
+      }
 }

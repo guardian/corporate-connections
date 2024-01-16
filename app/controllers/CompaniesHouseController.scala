@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc._
-import services.{CompaniesHouseService, FetchError, JsonError}
+import services.{ApiError, CompaniesHouseService, FetchError, JsonError}
 import io.circe.syntax._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,6 +19,16 @@ class CompaniesHouseController(components: ControllerComponents, companiesHouseS
       case Right(appointments) => Ok(appointments.map(_.appointed_to.company_number).asJson.spaces2)
       case Left(JsonError(error)) => InternalServerError("Error processing response from Companies House API")
       case Left(FetchError(message)) => InternalServerError("Error making request to Companies House API")
+      case Left(ApiError(message)) => InternalServerError("Error making request to Companies House API")
+    }
+  }
+
+  def getOfficers(companyNumber: String) = Action.async {
+    companiesHouseService.getOfficers(companyNumber).map {
+      case Right(officers) => Ok(officers.map(_.name).asJson.spaces2)
+      case Left(JsonError(error)) => InternalServerError("Error processing response from Companies House API")
+      case Left(FetchError(message)) => InternalServerError("Error making request to Companies House API")
+      case Left(ApiError(message)) => InternalServerError("Error making request to Companies House API")
     }
   }
 }

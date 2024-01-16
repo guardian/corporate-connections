@@ -16,5 +16,6 @@ case class Officer(name: String, officer_role: String)
 case class CompanyOfficersResponse(items: List[Officer])
 
 object CompanyOfficersResponse {
-
+  import io.circe.generic.auto._
+  implicit val decoder = Decoder[CompanyOfficersResponse]
 }
