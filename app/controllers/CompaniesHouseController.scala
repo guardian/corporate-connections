@@ -1,8 +1,9 @@
 package controllers
 
 import play.api.mvc._
-import services.{ApiError, CompaniesHouseService, FetchError, JsonError}
+import services.{ApiError, CompaniesHouseError, CompaniesHouseService, FetchError, JsonError}
 import io.circe.syntax._
+import models.{Appointment, Officer}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,6 +30,33 @@ class CompaniesHouseController(components: ControllerComponents, companiesHouseS
       case Left(JsonError(error)) => InternalServerError("Error processing response from Companies House API")
       case Left(FetchError(message)) => InternalServerError("Error making request to Companies House API")
       case Left(ApiError(message)) => InternalServerError("Error making request to Companies House API")
+    }
+  }
+
+  private def getOfficerNamesForAppointments(appointments: List[Appointment]): Future[List[String]] =
+    Future
+      .sequence(  // convert List[Future[...]] to Future[List[...]]
+        appointments.map(app =>
+          companiesHouseService.getOfficers(app.appointed_to.company_number)
+        )
+      )
+      // filter out any errors and just get the names
+      .map((results: List[Either[CompaniesHouseError, List[Officer]]]) =>
+        results.collect {
+          case Right(officers) => officers.map(_.name)
+        }
+      )
+      .map(_.flatten) // flatten the list of lists (because each company has its own list of officers)
+      .map(_.toSet.toList)   // convert to a set to remove duplicates
+
+
+  def getConnections(officerId: String) = Action.async {
+    companiesHouseService.getAppointments(officerId).flatMap {
+      case Right(appointments) =>
+        getOfficerNamesForAppointments(appointments)
+          .map(officers => Ok(officers.asJson.spaces2))
+
+      case Left(error) => Future.successful(InternalServerError("Error processing response from Companies House API"))
     }
   }
 }

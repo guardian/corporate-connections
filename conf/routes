@@ -8,4 +8,4 @@ GET /officer/:officerId/appointments   controllers.CompaniesHouseController.getA
 GET /company/:companyNumber/officers   controllers.CompaniesHouseController.getOfficers(companyNumber: String)
 
 # Task 4: return connected officer names for a given officerId
-#GET /officer/:officerId/connections    controllers.CompaniesHouseController.getConnections(officerId: String)
+GET /officer/:officerId/connections    controllers.CompaniesHouseController.getConnections(officerId: String)
